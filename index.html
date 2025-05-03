@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Tasks | Чиркин Елизар</title>
+    <style>
+        :root {
+            --primary: #6e48aa;
+            --secondary: #9d50bb;
+            --accent: #4776e6;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --text-primary: #e6e6e6;
+            --text-secondary: #b3b3b3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533d7b);
+            background-size: 400% 400%;
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "🔒";
+            font-size: 1.5rem;
+        }
+
+        .author {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .task-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            padding: 0.75rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+        }
+
+        .task-nav button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .task-nav button:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .task-nav button.active {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .task-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .task-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card h2::before {
+            content: "📌";
+            font-size: 1.2rem;
+        }
+
+        .card h3 {
+            margin: 1.5rem 0 1rem;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+        }
+
+        .card p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .screenshots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .screenshots img {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .screenshots img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .code-block {
+            position: relative;
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-block.cmd {
+            background: #0c0c0c;
+        }
+
+        .code-block.powershell {
+            background: #012456;
+        }
+
+        .code-block.python {
+            background: #306998;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+            color: white;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            color: #d4d4d4;
+            line-height: 1.5;
+        }
+
+        .keyword {
+            color: #569cd6;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .function {
+            color: #dcdcaa;
+        }
+
+        .tag {
+            color: #569cd6;
+        }
+
+        .attribute {
+            color: #9cdcfe;
+        }
+
+        .value {
+            color: #ce9178;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .badge-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .badge-warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .badge-danger {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .badge-info {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+
+        .badge-cmd {
+            background: rgba(12, 12, 12, 0.5);
+            color: #cccccc;
+        }
+
+        .badge-powershell {
+            background: rgba(1, 36, 86, 0.5);
+            color: #ffffff;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Fullscreen image overlay */
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fullscreen-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .close-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-fullscreen:hover {
+            color: var(--accent);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating elements animation */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-element {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(110, 72, 170, 0.1);
+            filter: blur(60px);
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50vw, 25vh) rotate(90deg); }
+            50% { transform: translate(25vw, 50vh) rotate(180deg); }
+            75% { transform: translate(75vw, 25vh) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .task-nav {
+                flex-wrap: wrap;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .screenshots {
+                grid-template-columns: 1fr;
+            }
+            
+            .close-fullscreen {
+                right: 15px;
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating background elements -->
+    <div class="floating-elements">
+        <div class="floating-element" style="width: 300px; height: 300px; top: 10%; left: 20%;"></div>
+        <div class="floating-element" style="width: 400px; height: 400px; top: 60%; left: 70%; animation-delay: -5s;"></div>
+        <div class="floating-element" style="width: 250px; height: 250px; top: 30%; left: 50%; animation-delay: -10s;"></div>
+    </div>
+
+    <!-- Fullscreen image overlay -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <span class="close-fullscreen" id="closeFullscreen">&times;</span>
+        <img class="fullscreen-image" id="fullscreenImage" src="" alt="Fullscreen image">
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">Security Tasks</div>
+            <div class="author">Чиркин Елизар</div>
+        </header>
+
+        <div class="task-nav">
+            <button class="active" onclick="showTask(1)">Хэш файла</button>
+            <button onclick="showTask(2)">Хэш строки</button>
+            <button onclick="showTask(3)">Python скрипт</button>
+        </div>
+
+        <!-- Task 1 Content -->
+        <div class="task-content active" id="task1">
+            <div class="card">
+                <h2>Задание: Расчет и проверка хэшей (файл)</h2>
+                
+                <h3>Выполнение:</h3>
+                <p>1. Рассчитать хэш SHA-256 для файла с использованием встроенных средств Windows</p>
+                <p>2. Проверить полученные значения хэшей на веб-ресурсах</p>
+
+                <h3>Команды для Windows (CMD):</h3>
+                <div class="code-block cmd">
+                    <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                    <pre><code>certutil -hashfile "путь_к_файлу" SHA256</code></pre>
+                </div>
+
+                <h3>Команды для Windows (PowerShell):</h3>
+                <div class="code-block powershell">
+                    <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                    <pre><code>Get-FileHash -Algorithm SHA256 "путь_к_файлу"</code></pre>
+                </div>
+
+                <h3>Веб-ресурсы для проверки:</h3>
+                <p><span class="badge badge-info">1</span> <a href="https://hash-file.online/" target="_blank" style="color: var(--accent);">https://hash-file.online/</a></p>
+                <p><span class="badge badge-info">2</span> <a href="https://www.strerr.com/ru/sha256_file.html" target="_blank" style="color: var(--accent);">https://www.strerr.com/ru/sha256_file.html</a></p>
+
+                <h3>Скриншоты выполнения:</h3>
+                <div class="screenshots">
+                    <img src="screenshots/hash_file_cmd.png" alt="Расчет хэша в CMD" onclick="openFullscreen(this)">
+                    <img src="screenshots/hash_file_ps.png" alt="Расчет хэша в PowerShell" onclick="openFullscreen(this)">
+                    <img src="screenshots/hash_file_online.png" alt="Проверка хэша онлайн" onclick="openFullscreen(this)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 2 Content -->
+        <div class="task-content" id="task2">
+            <div class="card">
+                <h2>Задание: Расчет и проверка хэшей (строка)</h2>
+                
+                <h3>Выполнение:</h3>
+                <p>1. Рассчитать хэш SHA-256 для строки "test" с использованием встроенных средств Windows</p>
+                <p>2. Проверить полученные значения хэшей на веб-ресурсах</p>
+
+                <h3>Команды для Windows (CMD):</h3>
+                <div class="code-block cmd">
+                    <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                    <pre><code>echo|set /p="test" > %TMP%/hash.txt | certutil -hashfile %TMP%/hash.txt SHA256 | findstr /v "hash"</code></pre>
+                </div>
+
+                <h3>Веб-ресурсы для проверки:</h3>
+                <p><span class="badge badge-info">1</span> <a href="https://pi7.org/hash/sha256" target="_blank" style="color: var(--accent);">https://pi7.org/hash/sha256</a></p>
+                <p><span class="badge badge-info">2</span> <a href="https://md5decrypt.net/en/Sha256/" target="_blank" style="color: var(--accent);">https://md5decrypt.net/en/Sha256/</a></p>
+
+                <h3>Ожидаемый результат для строки "test":</h3>
+                <div class="code-block">
+                    <pre>9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08</pre>
+                </div>
+
+                <h3>Скриншоты выполнения:</h3>
+                <div class="screenshots">
+                    <img src="screenshots/hash_string_cmd.png" alt="Расчет хэша строки в CMD" onclick="openFullscreen(this)">
+                    <img src="screenshots/hash_string_online.png" alt="Проверка хэша строки онлайн" onclick="openFullscreen(this)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 3 Content -->
+        <div class="task-content" id="task3">
+            <div class="card">
+                <h2>Дополнительное задание: Python скрипт для расчета хэшей</h2>
+                
+                <h3>Программа на Python для вычисления хэш-значений:</h3>
+                
+                <div class="code-block python">
+                    <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                    <pre><code><span class="keyword">import</span> hashlib
+
+<span class="keyword">def</span> <span class="function">calculate_file_hash</span>(file_path, algorithm=<span class="string">'sha256'</span>):
+    <span class="string">"""Вычисляет хэш файла"""</span>
+    hash_object = hashlib.new(algorithm)
+    <span class="keyword">try</span>:
+        <span class="keyword">with</span> <span class="function">open</span>(file_path, <span class="string">'rb'</span>) <span class="keyword">as</span> f:
+            <span class="keyword">for</span> chunk <span class="keyword">in</span> <span class="function">iter</span>(<span class="keyword">lambda</span>: f.read(4096), <span class="string">b''</span>):
+                hash_object.update(chunk)
+        <span class="keyword">return</span> hash_object.hexdigest()
+    <span class="keyword">except</span> <span class="function">Exception</span> <span class="keyword">as</span> e:
+        <span class="keyword">return</span> <span class="string">f"Ошибка: {e}"</span>
+
+<span class="keyword">def</span> <span class="function">calculate_string_hash</span>(text, algorithm=<span class="string">'sha256'</span>):
+    <span class="string">"""Вычисляет хэш строки"""</span>
+    <span class="keyword">try</span>:
+        hash_object = hashlib.new(algorithm)
+        hash_object.update(text.encode(<span class="string">'utf-8'</span>))
+        <span class="keyword">return</span> hash_object.hexdigest()
+    <span class="keyword">except</span> <span class="function">Exception</span> <span class="keyword">as</span> e:
+        <span class="keyword">return</span> <span class="string">f"Ошибка: {e}"</span>
+
+<span class="comment"># Пример использования</span>
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    <span class="function">print</span>(<span class="string">"1. Вычислить хэш файла"</span>)
+    <span class="function">print</span>(<span class="string">"2. Вычислить хэш строки"</span>)
+    choice = <span class="function">input</span>(<span class="string">"Выберите действие (1/2): "</span>)
+    
+    <span class="keyword">if</span> choice == <span class="string">'1'</span>:
+        file_path = <span class="function">input</span>(<span class="string">"Введите путь к файлу: "</span>)
+        algorithm = <span class="function">input</span>(<span class="string">"Введите алгоритм (sha256 по умолчанию): "</span>) <span class="keyword">or</span> <span class="string">'sha256'</span>
+        result = <span class="function">calculate_file_hash</span>(file_path, algorithm)
+        <span class="function">print</span>(<span class="string">f"Хэш ({algorithm}) файла: {result}"</span>)
+    <span class="keyword">elif</span> choice == <span class="string">'2'</span>:
+        text = <span class="function">input</span>(<span class="string">"Введите текст: "</span>)
+        algorithm = <span class="function">input</span>(<span class="string">"Введите алгоритм (sha256 по умолчанию): "</span>) <span class="keyword">or</span> <span class="string">'sha256'</span>
+        result = <span class="function">calculate_string_hash</span>(text, algorithm)
+        <span class="function">print</span>(<span class="string">f"Хэш ({algorithm}) строки: {result}"</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">"Неверный выбор"</span>)</code></pre>
+                </div>
+
+                <h3>Как использовать:</h3>
+                <p><span class="badge badge-info">1</span> Сохраните скрипт как <code>hash_calculator.py</code></p>
+                <p><span class="badge badge-info">2</span> Для файлов: <code>python hash_calculator.py</code> → выберите 1 → укажите путь к файлу</p>
+                <p><span class="badge badge-info">3</span> Для строк: <code>python hash_calculator.py</code> → выберите 2 → введите текст</p>
+
+                <h3>Поддерживаемые алгоритмы:</h3>
+                <p>sha1, sha224, sha256, sha384, sha512, md5 и другие (зависит от системы)</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Security Tasks | Чиркин Елизар</p>
+            <p>Все задания выполнены в соответствии с требованиями</p>
+        </footer>
+    </div>
+
+    <script>
+        // Show/hide tasks
+        function showTask(taskNumber) {
+            // Hide all task contents
+            document.querySelectorAll('.task-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected task content
+            document.getElementById('task' + taskNumber).classList.add('active');
+            
+            // Update active button
+            document.querySelectorAll('.task-nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        // Copy code blocks
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Скопировано!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = 'Копировать';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Fullscreen image functionality
+        function openFullscreen(imgElement) {
+            const overlay = document.getElementById('fullscreenOverlay');
+            const fullscreenImg = document.getElementById('fullscreenImage');
+            
+            fullscreenImg.src = imgElement.src;
+            fullscreenImg.alt = imgElement.alt;
+            overlay.style.display = 'flex';
+            
+            // Prevent scrolling when overlay is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFullscreen() {
+            const overlay = document.getElementById('fullscreenOverlay');
+            overlay.style.display = 'none';
+            
+            // Restore scrolling
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close fullscreen when clicking the overlay (outside the image)
+        document.getElementById('fullscreenOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFullscreen();
+            }
+        });
+
+        // Close fullscreen when clicking the close button
+        document.getElementById('closeFullscreen').addEventListener('click', closeFullscreen);
+
+        // Close fullscreen with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
